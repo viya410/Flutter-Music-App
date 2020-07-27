@@ -7,6 +7,7 @@ import 'package:MusicLyrics/view/music_list_view.dart';
 import 'package:flutter/material.dart';
 import 'package:MusicLyrics/blocs/connectivity_bloc.dart';
 import 'package:connectivity/connectivity.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class GetMusicLyrics extends StatefulWidget {
   final int trackId;
@@ -29,22 +30,11 @@ class _GetMusicLyricsState extends State<GetMusicLyrics> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 5.0,
-        centerTitle: true,
-        title: Text(
-          'Track Details',
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
+      appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(56.0),
+          child: LyricAppBar(
+            trackId: widget.trackId.toString(),
+          )),
       body: StreamBuilder<ConnectivityResult>(
           stream: _netBloc.connectivityResultStream.asBroadcastStream(),
           builder: (context, snapshot) {
@@ -206,6 +196,76 @@ class InfoTile extends StatelessWidget {
           body,
           style: TextStyle(fontSize: 20.0),
         ),
+      ],
+    );
+  }
+}
+
+class LyricAppBar extends StatefulWidget {
+  final String trackId;
+  LyricAppBar({@required this.trackId});
+  @override
+  _LyricAppBarState createState() => _LyricAppBarState();
+}
+
+class _LyricAppBarState extends State<LyricAppBar> {
+  IconData bookmarkIcon = Icons.bookmark_border;
+  void checkBookmarkStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final stringList = prefs.getStringList('bookmarkList') ?? [];
+    setState(() {
+      if (prefs.containsKey('bookmarkList') &&
+          stringList.contains(widget.trackId)) {
+        bookmarkIcon = Icons.bookmark;
+      } else {
+        bookmarkIcon = Icons.bookmark_border;
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    checkBookmarkStatus();
+    return AppBar(
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back, color: Colors.black),
+        onPressed: () => Navigator.of(context).pop(),
+      ),
+      backgroundColor: Colors.white,
+      elevation: 5.0,
+      centerTitle: true,
+      title: Text(
+        'Track Details',
+        style: TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      actions: <Widget>[
+        IconButton(
+          icon: Icon(
+            bookmarkIcon,
+            color: Colors.black,
+          ),
+          onPressed: () async {
+            final prefs = await SharedPreferences.getInstance();
+            final stringList = prefs.getStringList('bookmarkList') ?? [];
+            setState(() {
+              if (bookmarkIcon == Icons.bookmark_border) {
+                bookmarkIcon = Icons.bookmark;
+                stringList.add(widget.trackId);
+              } else {
+                bookmarkIcon = Icons.bookmark_border;
+                if (prefs.containsKey('bookmarkList') &&
+                    stringList.contains(widget.trackId)) {
+                  stringList.remove(widget.trackId);
+                }
+              }
+              prefs.setStringList('bookmarkList', stringList);
+            });
+            print(stringList.toString());
+          },
+        )
       ],
     );
   }
