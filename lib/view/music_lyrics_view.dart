@@ -211,6 +211,7 @@ class LyricAppBar extends StatefulWidget {
 
 class _LyricAppBarState extends State<LyricAppBar> {
   IconData bookmarkIcon = Icons.bookmark_border;
+  bool changed = false;
   void checkBookmarkStatus() async {
     final prefs = await SharedPreferences.getInstance();
     final stringList = prefs.getStringList('bookmarkList') ?? [];
@@ -234,7 +235,9 @@ class _LyricAppBarState extends State<LyricAppBar> {
     return AppBar(
       leading: IconButton(
         icon: Icon(Icons.arrow_back, color: Colors.black),
-        onPressed: () => Navigator.of(context).pop(),
+        onPressed: () {
+          Navigator.pop(context);
+        },
       ),
       backgroundColor: Colors.white,
       elevation: 5.0,
@@ -259,6 +262,7 @@ class _LyricAppBarState extends State<LyricAppBar> {
             final trackAlbumList = prefs.getStringList('albumList') ?? [];
             final trackArtistList = prefs.getStringList('artistList') ?? [];
             setState(() {
+              changed = true;
               if (bookmarkIcon == Icons.bookmark_border) {
                 bookmarkIcon = Icons.bookmark;
                 trackIDList.add(widget.track.trackId.toString());

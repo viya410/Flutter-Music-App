@@ -16,7 +16,6 @@ class _BookmarkViewState extends State<BookmarkView> {
   @override
   void initState() {
     super.initState();
-    sharedPref();
   }
 
   void sharedPref() async {
@@ -31,9 +30,19 @@ class _BookmarkViewState extends State<BookmarkView> {
 
   @override
   Widget build(BuildContext context) {
+    sharedPref();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: Colors.black,
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         title: Text(
           'Bookmarks',
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
