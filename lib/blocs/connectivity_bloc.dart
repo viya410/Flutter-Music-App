@@ -10,10 +10,17 @@ class ConnectivityBloc {
 
   ConnectivityBloc() {
     _connectivityController = StreamController<ConnectivityResult>.broadcast();
+    checkCurrentConnectivity();
     Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
       _connectivityController.add(result);
     });
   }
+  void checkCurrentConnectivity() async {
+    ConnectivityResult connectivityResult =
+        await Connectivity().checkConnectivity();
+    _connectivityController.add(connectivityResult);
+  }
+
   dispose() {
     _connectivityController?.close();
   }

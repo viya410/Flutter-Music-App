@@ -5,20 +5,24 @@ import 'package:MusicLyrics/models/music_lyrics.dart';
 import 'package:MusicLyrics/networking/response.dart';
 import 'package:MusicLyrics/view/music_list_view.dart';
 import 'package:flutter/material.dart';
+import 'package:MusicLyrics/blocs/connectivity_bloc.dart';
+import 'package:connectivity/connectivity.dart';
 
 class GetMusicLyrics extends StatefulWidget {
   final int trackId;
-  GetMusicLyrics({this.trackId});
+  GetMusicLyrics({@required this.trackId});
   @override
   _GetMusicLyricsState createState() => _GetMusicLyricsState();
 }
 
 class _GetMusicLyricsState extends State<GetMusicLyrics> {
+  ConnectivityBloc _netBloc;
   MusicDetailsBloc _bloc;
 
   @override
   void initState() {
     super.initState();
+    _netBloc = ConnectivityBloc();
     _bloc = MusicDetailsBloc(trackId: widget.trackId);
   }
 
@@ -41,37 +45,61 @@ class _GetMusicLyricsState extends State<GetMusicLyrics> {
           ),
         ),
       ),
-      body: RefreshIndicator(
-        onRefresh: () => _bloc.fetchMusicDetails(),
-        child: StreamBuilder<Response<MusicDetails>>(
-          stream: _bloc.musicDetailsStream,
+      body: StreamBuilder<ConnectivityResult>(
+          stream: _netBloc.connectivityResultStream.asBroadcastStream(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              switch (snapshot.data.status) {
-                case Status.LOADING:
-                  return Loading(
-                    loadingMessage: snapshot.data.message,
+              switch (snapshot.data) {
+                case ConnectivityResult.mobile:
+                case ConnectivityResult.wifi:
+                  _bloc.fetchMusicDetails();
+                  print('NET2 : ');
+                  return RefreshIndicator(
+                    onRefresh: () => _bloc.fetchMusicDetails(),
+                    child: StreamBuilder<Response<MusicDetails>>(
+                      stream: _bloc.musicDetailsStream.asBroadcastStream(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          switch (snapshot.data.status) {
+                            case Status.LOADING:
+                              return Loading(
+                                loadingMessage: snapshot.data.message,
+                              );
+                              break;
+                            case Status.COMPLETED:
+                              return TrackDetails(
+                                musicDetails: snapshot.data.data,
+                                trackId: widget.trackId,
+                              );
+                              break;
+                            case Status.ERROR:
+                              return Text('Errror');
+                              break;
+                          }
+                        }
+                        return Loading(
+                          loadingMessage: 'Connecting',
+                        );
+                      },
+                    ),
                   );
                   break;
-                case Status.COMPLETED:
-                  return TrackDetails(
-                    musicDetails: snapshot.data.data,
-                    trackId: widget.trackId,
+                case ConnectivityResult.none:
+                  print('NOPEEEEEEEEEEEEEEEEEEEEE : ');
+                  return Center(
+                    child: Text('No internet'),
                   );
-                  break;
-                case Status.ERROR:
                   break;
               }
             }
-            return Container();
-          },
-        ),
-      ),
+            return Text('bruuuh');
+          }),
     );
   }
 
   @override
   void dispose() {
+    _netBloc.dispose();
     _bloc.dispose();
     super.dispose();
   }
@@ -128,7 +156,7 @@ class _TrackDetailsState extends State<TrackDetails> {
             body: track.trackRating.toString(),
           ),
           StreamBuilder<Response<MusicLyrics>>(
-              stream: _bloc.musicLyricsStream,
+              stream: _bloc.musicLyricsStream.asBroadcastStream(),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   switch (snapshot.data.status) {
@@ -147,7 +175,9 @@ class _TrackDetailsState extends State<TrackDetails> {
                       break;
                   }
                 }
-                return Container();
+                return Loading(
+                  loadingMessage: '',
+                );
               })
         ],
       ),

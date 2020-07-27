@@ -17,7 +17,7 @@ class MusicDetailsBloc {
     _musicDetailsController =
         StreamController<Response<MusicDetails>>.broadcast();
     _musicDetailsRepository = MusicDetailsRepository(trackId: trackId);
-    fetchMusicDetails();
+    //fetchMusicDetails();
   }
   fetchMusicDetails() async {
     musicDetailsSink.add(Response.loading('Loading details.. '));

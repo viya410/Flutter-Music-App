@@ -13,7 +13,7 @@ class GetMusicList extends StatefulWidget {
 
 class _GetMusicListState extends State<GetMusicList> {
   ConnectivityBloc _netBloc = ConnectivityBloc();
-  MusicListBloc _bloc;
+  MusicListBloc _bloc = MusicListBloc();
   @override
   void initState() {
     super.initState();
@@ -97,6 +97,7 @@ class TrackList extends StatelessWidget {
           Track track = musicList.message.body.trackList[index].track;
           return InkWell(
             onTap: () {
+              debugPrint('Calling for trackid ${track.trackId}');
               Navigator.push(
                   context,
                   MaterialPageRoute(
