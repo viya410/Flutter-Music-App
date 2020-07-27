@@ -8,10 +8,11 @@ import 'package:flutter/material.dart';
 import 'package:MusicLyrics/blocs/connectivity_bloc.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:MusicLyrics/models/music_list.dart' as ListTrack;
 
 class GetMusicLyrics extends StatefulWidget {
-  final int trackId;
-  GetMusicLyrics({@required this.trackId});
+  final ListTrack.Track trackCurrent;
+  GetMusicLyrics({@required this.trackCurrent});
   @override
   _GetMusicLyricsState createState() => _GetMusicLyricsState();
 }
@@ -24,7 +25,7 @@ class _GetMusicLyricsState extends State<GetMusicLyrics> {
   void initState() {
     super.initState();
     _netBloc = ConnectivityBloc();
-    _bloc = MusicDetailsBloc(trackId: widget.trackId);
+    _bloc = MusicDetailsBloc(trackId: widget.trackCurrent.trackId);
   }
 
   @override
@@ -33,7 +34,7 @@ class _GetMusicLyricsState extends State<GetMusicLyrics> {
       appBar: PreferredSize(
           preferredSize: const Size.fromHeight(56.0),
           child: LyricAppBar(
-            trackId: widget.trackId.toString(),
+            track: widget.trackCurrent,
           )),
       body: StreamBuilder<ConnectivityResult>(
           stream: _netBloc.connectivityResultStream.asBroadcastStream(),
@@ -59,7 +60,7 @@ class _GetMusicLyricsState extends State<GetMusicLyrics> {
                             case Status.COMPLETED:
                               return TrackDetails(
                                 musicDetails: snapshot.data.data,
-                                trackId: widget.trackId,
+                                trackId: widget.trackCurrent.trackId,
                               );
                               break;
                             case Status.ERROR:
@@ -75,14 +76,14 @@ class _GetMusicLyricsState extends State<GetMusicLyrics> {
                   );
                   break;
                 case ConnectivityResult.none:
-                  print('NOPEEEEEEEEEEEEEEEEEEEEE : ');
+                  print('No Net : ');
                   return Center(
                     child: Text('No internet'),
                   );
                   break;
               }
             }
-            return Text('bruuuh');
+            return Text('Check Connectivity object');
           }),
     );
   }
@@ -202,8 +203,8 @@ class InfoTile extends StatelessWidget {
 }
 
 class LyricAppBar extends StatefulWidget {
-  final String trackId;
-  LyricAppBar({@required this.trackId});
+  final ListTrack.Track track;
+  LyricAppBar({@required this.track});
   @override
   _LyricAppBarState createState() => _LyricAppBarState();
 }
@@ -214,8 +215,7 @@ class _LyricAppBarState extends State<LyricAppBar> {
     final prefs = await SharedPreferences.getInstance();
     final stringList = prefs.getStringList('bookmarkList') ?? [];
     setState(() {
-      if (prefs.containsKey('bookmarkList') &&
-          stringList.contains(widget.trackId)) {
+      if (stringList.contains(widget.track.trackId.toString())) {
         bookmarkIcon = Icons.bookmark;
       } else {
         bookmarkIcon = Icons.bookmark_border;
@@ -224,8 +224,13 @@ class _LyricAppBarState extends State<LyricAppBar> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
     checkBookmarkStatus();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return AppBar(
       leading: IconButton(
         icon: Icon(Icons.arrow_back, color: Colors.black),
@@ -249,21 +254,38 @@ class _LyricAppBarState extends State<LyricAppBar> {
           ),
           onPressed: () async {
             final prefs = await SharedPreferences.getInstance();
-            final stringList = prefs.getStringList('bookmarkList') ?? [];
+            final trackIDList = prefs.getStringList('bookmarkList') ?? [];
+            final trackNameList = prefs.getStringList('nameList') ?? [];
+            final trackAlbumList = prefs.getStringList('albumList') ?? [];
+            final trackArtistList = prefs.getStringList('artistList') ?? [];
             setState(() {
               if (bookmarkIcon == Icons.bookmark_border) {
                 bookmarkIcon = Icons.bookmark;
-                stringList.add(widget.trackId);
+                trackIDList.add(widget.track.trackId.toString());
+                trackNameList.add(widget.track.trackName);
+                trackAlbumList.add(widget.track.albumName);
+                trackArtistList.add(widget.track.artistName);
               } else {
                 bookmarkIcon = Icons.bookmark_border;
                 if (prefs.containsKey('bookmarkList') &&
-                    stringList.contains(widget.trackId)) {
-                  stringList.remove(widget.trackId);
+                    trackIDList.contains(widget.track.trackId.toString())) {
+                  int index =
+                      trackIDList.indexOf(widget.track.trackId.toString());
+                  trackIDList.removeAt(index);
+                  trackNameList.removeAt(index);
+                  trackAlbumList.removeAt(index);
+                  trackArtistList.removeAt(index);
                 }
               }
-              prefs.setStringList('bookmarkList', stringList);
+              prefs.setStringList('bookmarkList', trackIDList);
+              prefs.setStringList('nameList', trackNameList);
+              prefs.setStringList('albumList', trackAlbumList);
+              prefs.setStringList('artistList', trackArtistList);
             });
-            print(stringList.toString());
+            print(trackIDList.toString());
+            print(trackNameList.toString());
+            print(trackAlbumList.toString());
+            print(trackArtistList.toString());
           },
         )
       ],
