@@ -55,7 +55,7 @@ class _GetMusicListState extends State<GetMusicList> {
               case ConnectivityResult.mobile:
               case ConnectivityResult.wifi:
                 _bloc.fetchMusicList();
-                print('NET : ');
+                //print('NET : ');
                 return RefreshIndicator(
                   onRefresh: () => _bloc.fetchMusicList(),
                   child: StreamBuilder<Response<MusicList>>(
@@ -80,7 +80,7 @@ class _GetMusicListState extends State<GetMusicList> {
                 );
                 break;
               case ConnectivityResult.none:
-                print('NOPEEEEEEEEEEEEEEEEEEEEE : ');
+                //print('No net: ');
                 return Center(
                   child: Text('No internet'),
                 );
@@ -158,7 +158,7 @@ class TrackTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        debugPrint('Calling for trackid ${track.trackId}');
+        //debugPrint('Calling for trackid ${track.trackId}');
         Navigator.push(
             context,
             MaterialPageRoute(

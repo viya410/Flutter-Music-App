@@ -44,7 +44,7 @@ class _GetMusicLyricsState extends State<GetMusicLyrics> {
                 case ConnectivityResult.mobile:
                 case ConnectivityResult.wifi:
                   _bloc.fetchMusicDetails();
-                  print('NET2 : ');
+                  //print('NET2 : ');
                   return RefreshIndicator(
                     onRefresh: () => _bloc.fetchMusicDetails(),
                     child: StreamBuilder<Response<MusicDetails>>(
@@ -76,7 +76,7 @@ class _GetMusicLyricsState extends State<GetMusicLyrics> {
                   );
                   break;
                 case ConnectivityResult.none:
-                  print('No Net : ');
+                  //print('No Net : ');
                   return Center(
                     child: Text('No internet'),
                   );
@@ -286,10 +286,10 @@ class _LyricAppBarState extends State<LyricAppBar> {
               prefs.setStringList('albumList', trackAlbumList);
               prefs.setStringList('artistList', trackArtistList);
             });
-            print(trackIDList.toString());
-            print(trackNameList.toString());
-            print(trackAlbumList.toString());
-            print(trackArtistList.toString());
+            //print(trackIDList.toString());
+            //print(trackNameList.toString());
+            //print(trackAlbumList.toString());
+            //print(trackArtistList.toString());
           },
         )
       ],
