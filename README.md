@@ -12,7 +12,7 @@
 - Bookmark button on the home leads to bookmark page
 - Bookmark button on track page bookmarks it. (visible on bookmark page)
 - API can be changed in /lib/constants.dart 
-- Please change API if app is in "connecting" as only 2k hits per day is allowed.
+- **Please change API if app is in "connecting" as only 2k hits per day is allowed.**
 
 **Todo :**
 
