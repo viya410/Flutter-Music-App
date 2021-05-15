@@ -6,7 +6,8 @@
 - Songs can also be bookmarked from the song detail page.
 - All bookmarked songs can be viewed from Bookmark button on the 'Trending' (Home) page  
 
-![MusicLyrics](https://user-images.githubusercontent.com/43174511/118363489-2553ff00-b5b2-11eb-939a-094b301e62c1.gif)
+![MusicLyrics](https://user-images.githubusercontent.com/43174511/118363904-15d5b580-b5b4-11eb-8d94-dfe596be39fb.gif)
+
 
 
 **Usage :**
